@@ -28,6 +28,9 @@ export async function openLocalStore(path){
  if(!(await db.query("select version from private.local_schema_versions where version='obligations-v1'")).rows.length){
   await db.exec(await readFile(new URL('../db/local-obligations.sql',import.meta.url),'utf8'));
  }
+ if(!(await db.query("select version from private.local_schema_versions where version='resources-v1'")).rows.length){
+  await db.exec(await readFile(new URL('../db/local-resources.sql',import.meta.url),'utf8'));
+ }
  let queue=Promise.resolve();
  async function execute(actor,action,input={}){
   if(!Object.hasOwn(actors,actor))throw new Error('INVALID_ACTOR');
@@ -51,6 +54,11 @@ export async function openLocalStore(path){
      if(!result.rows.length)throw new Error('REVISION_CONFLICT_OR_ACCESS_DENIED');
     }else await tx.query('insert into obligations(title,reference,source_version,effective_on,applicability,reason,next_review,change_note,company_id) values($1,$2,$3,$4,$5,$6,$7,$8,$9)',[...values,member.company_id]);
    }
+   else if(action==='addResource'){
+    const amount=input.kind==='budget'?input.amount:null;
+    if(input.kind==='budget'&&(!/^\d{1,13}$/.test(String(amount))||Number(amount)>1000000000000))throw new Error('INVALID_INPUT');
+    await tx.query('insert into obligation_resources(company_id,obligation_id,kind,name,responsible,description,amount) values($1,$2,$3,$4,$5,$6,$7)',[member.company_id,input.obligation_id,input.kind,input.name?.trim(),input.responsible?.trim(),input.description?.trim(),amount]);
+   }
    else if(action==='editAction'){
     if(!Number.isInteger(input.revision))throw new Error('INVALID_INPUT');
     const result=await tx.query('update safety_actions set title=$1,assignee=$2,due_date=$3,note=$4,revision=revision+1 where id=$5 and revision=$6 returning id',[input.title?.trim(),input.assignee?.trim(),input.due_date,input.note?.trim()??'',input.id,input.revision]);
@@ -62,7 +70,7 @@ export async function openLocalStore(path){
     if(!result.rows.length)throw new Error('REVISION_CONFLICT_OR_ACCESS_DENIED');
    }
    else if(!['state','export'].includes(action))throw new Error('INVALID_ACTION');
-   return {actor,member,sites:(await tx.query('select * from sites order by created_at,id')).rows,feedback:(await tx.query('select * from pilot_feedback order by created_at desc')).rows,actions:(await tx.query('select * from safety_actions order by due_date,created_at')).rows,obligations:(await tx.query('select * from obligations order by next_review,title')).rows};
+   return {actor,member,sites:(await tx.query('select * from sites order by created_at,id')).rows,feedback:(await tx.query('select * from pilot_feedback order by created_at desc')).rows,actions:(await tx.query('select * from safety_actions order by due_date,created_at')).rows,obligations:(await tx.query('select * from obligations order by next_review,title')).rows,resources:(await tx.query('select * from obligation_resources order by created_at desc')).rows};
   });
  }
  return {request(actor,action,input){const next=queue.then(()=>execute(actor,action,input));queue=next.catch(()=>{});return next;},async close(){await queue;await db.close();}};
