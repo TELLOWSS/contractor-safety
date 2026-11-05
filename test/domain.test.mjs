@@ -1,0 +1,12 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {authorize,transition,createSite} from '../src/domain.mjs';
+const actor={id:'author',companyId:'co',siteIds:['a'],active:true,role:'manager'};
+const record={id:'task',companyId:'co',siteId:'a',createdBy:'author',status:'draft',revision:1,evidenceIds:[],events:[]};
+test('cross company and cross site denied',()=>{assert.throws(()=>authorize(actor,{...record,companyId:'other'}));assert.throws(()=>authorize(actor,{...record,siteId:'b'}));});
+test('revoked membership and viewer writes denied',()=>{assert.throws(()=>authorize({...actor,active:false},record));assert.throws(()=>authorize({...actor,role:'viewer'},record,true));});
+test('no verification by skipping workflow',()=>assert.throws(()=>transition(record,'verified',actor,1,'test')));
+test('stale revision does not overwrite',()=>assert.throws(()=>transition(record,'in_progress',actor,0,'test'),/REVISION_CONFLICT/));
+test('evidence required before review',()=>assert.throws(()=>transition({...record,status:'in_progress'},'review_requested',actor,1,'test'),/EVIDENCE_REQUIRED/));
+test('independent reviewer verifies immutable history',()=>{const ready={...record,status:'review_requested',evidenceIds:['e1']};assert.throws(()=>transition(ready,'verified',{...actor,role:'reviewer'},1,'test'));const next=transition(ready,'verified',{...actor,id:'reviewer',role:'reviewer'},1,'현장 확인');assert.equal(next.events.length,1);assert.equal(ready.events.length,0);assert.equal(next.revision,2);});
+test('15 active sites maximum with closed sites retained',()=>{const sites=Array.from({length:15},(_,i)=>({id:String(i),companyId:'co',active:true}));assert.throws(()=>createSite(sites,'co','16현장','16'));sites[0].active=false;assert.equal(createSite(sites,'co','새 현장','16').active,true);});
