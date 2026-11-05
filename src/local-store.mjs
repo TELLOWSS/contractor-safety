@@ -18,6 +18,9 @@ export async function openLocalStore(path){
    await db.exec('commit');
   }catch(e){await db.exec('rollback');throw e;}
  }
+ if(!(await db.query("select to_regclass('public.safety_actions') as name")).rows[0].name){
+  await db.exec(await readFile(new URL('../db/local-actions.sql',import.meta.url),'utf8'));
+ }
  let queue=Promise.resolve();
  async function execute(actor,action,input={}){
   if(!Object.hasOwn(actors,actor))throw new Error('INVALID_ACTOR');
@@ -32,8 +35,14 @@ export async function openLocalStore(path){
     const result=await tx.query('update sites set active=$1,revision=revision+1 where id=$2 and revision=$3 returning id',[input.active,input.id,input.revision]);
     if(!result.rows.length)throw new Error('REVISION_CONFLICT_OR_ACCESS_DENIED');
    }else if(action==='feedback')await tx.query('insert into pilot_feedback(company_id,site_id,feature,decision,reason) values($1,$2,$3,$4,$5)',[member.company_id,input.site_id,input.feature?.trim(),input.decision,input.reason?.trim()]);
+   else if(action==='addAction')await tx.query('insert into safety_actions(company_id,site_id,title,assignee,due_date) values($1,$2,$3,$4,$5)',[member.company_id,input.site_id,input.title?.trim(),input.assignee?.trim(),input.due_date]);
+   else if(action==='transitionAction'){
+    if(!Number.isInteger(input.revision))throw new Error('INVALID_INPUT');
+    const result=await tx.query('update safety_actions set status=$1,note=$2,evidence_note=$3,revision=revision+1 where id=$4 and revision=$5 returning id',[input.status,input.note?.trim()??'',input.evidence_note?.trim()??'',input.id,input.revision]);
+    if(!result.rows.length)throw new Error('REVISION_CONFLICT_OR_ACCESS_DENIED');
+   }
    else if(!['state','export'].includes(action))throw new Error('INVALID_ACTION');
-   return {actor,member,sites:(await tx.query('select * from sites order by created_at,id')).rows,feedback:(await tx.query('select * from pilot_feedback order by created_at desc')).rows};
+   return {actor,member,sites:(await tx.query('select * from sites order by created_at,id')).rows,feedback:(await tx.query('select * from pilot_feedback order by created_at desc')).rows,actions:(await tx.query('select * from safety_actions order by due_date,created_at')).rows};
   });
  }
  return {request(actor,action,input){const next=queue.then(()=>execute(actor,action,input));queue=next.catch(()=>{});return next;},async close(){await queue;await db.close();}};
