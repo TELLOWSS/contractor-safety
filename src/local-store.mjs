@@ -21,6 +21,10 @@ export async function openLocalStore(path){
  if(!(await db.query("select to_regclass('public.safety_actions') as name")).rows[0].name){
   await db.exec(await readFile(new URL('../db/local-actions.sql',import.meta.url),'utf8'));
  }
+ await db.exec('create table if not exists private.local_schema_versions(version text primary key); revoke all on private.local_schema_versions from public,anon,authenticated');
+ if(!(await db.query("select version from private.local_schema_versions where version='action-edit-v1'")).rows.length){
+  await db.exec(await readFile(new URL('../db/local-action-edit.sql',import.meta.url),'utf8'));
+ }
  let queue=Promise.resolve();
  async function execute(actor,action,input={}){
   if(!Object.hasOwn(actors,actor))throw new Error('INVALID_ACTOR');
@@ -36,6 +40,11 @@ export async function openLocalStore(path){
     if(!result.rows.length)throw new Error('REVISION_CONFLICT_OR_ACCESS_DENIED');
    }else if(action==='feedback')await tx.query('insert into pilot_feedback(company_id,site_id,feature,decision,reason) values($1,$2,$3,$4,$5)',[member.company_id,input.site_id,input.feature?.trim(),input.decision,input.reason?.trim()]);
    else if(action==='addAction')await tx.query('insert into safety_actions(company_id,site_id,title,assignee,due_date) values($1,$2,$3,$4,$5)',[member.company_id,input.site_id,input.title?.trim(),input.assignee?.trim(),input.due_date]);
+   else if(action==='editAction'){
+    if(!Number.isInteger(input.revision))throw new Error('INVALID_INPUT');
+    const result=await tx.query('update safety_actions set title=$1,assignee=$2,due_date=$3,note=$4,revision=revision+1 where id=$5 and revision=$6 returning id',[input.title?.trim(),input.assignee?.trim(),input.due_date,input.note?.trim()??'',input.id,input.revision]);
+    if(!result.rows.length)throw new Error('REVISION_CONFLICT_OR_ACCESS_DENIED');
+   }
    else if(action==='transitionAction'){
     if(!Number.isInteger(input.revision))throw new Error('INVALID_INPUT');
     const result=await tx.query('update safety_actions set status=$1,note=$2,evidence_note=$3,revision=revision+1 where id=$4 and revision=$5 returning id',[input.status,input.note?.trim()??'',input.evidence_note?.trim()??'',input.id,input.revision]);
