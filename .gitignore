@@ -3,3 +3,5 @@ dist/
 .vercel/
 .env*
 !.env.example
+.local-data/
+workspace-preview.jpg

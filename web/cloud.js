@@ -47,5 +47,5 @@ root.addEventListener('click',e=>{const b=e.target.closest('button');if(!b||b.ty
  await load();message('최신 내용을 불러왔습니다.');
  });});
 root.addEventListener('change',e=>{if(e.target.id==='company')run(async()=>{company=e.target.value;sites=[];feedback=[];root.innerHTML='<p>회사 자료를 불러오고 있습니다.</p>';await load();message('선택한 회사로 전환했습니다.');});});
-if(!db){document.querySelector('#connection').textContent='연결 준비 중';root.innerHTML='<h1>회사 워크스페이스 준비 중</h1><section class="panel"><p>별도 DB 프로젝트와 계정 설정을 준비하고 있습니다. 연결 전에는 로그인이나 서버 저장을 제공하지 않습니다.</p><a href="/">기존 실증 화면 사용하기 →</a></section>';}
+if(!db){document.querySelector('#connection').textContent='무료 로컬 개발 사용';root.innerHTML='<h1>무료 로컬 개발로 진행합니다</h1><section class="panel"><p>추가 서비스 비용 없이 개발하기 위해 PC에 저장하는 개발실을 제공합니다. 프로젝트 폴더의 무료개발실-실행.cmd를 실행한 뒤 무료개발실-열기.url을 여세요. 온라인 회사 로그인은 현재 사용하지 않습니다.</p><a href="/">기존 실증 화면 사용하기 →</a></section>';}
 else{document.querySelector('#connection').textContent='회사 계정';db.auth.onAuthStateChange((event)=>{if(event==='SIGNED_OUT'){++generation;user=null;company=null;members=[];sites=[];feedback=[];login();}});run(load);}

@@ -1,12 +1,13 @@
 {
   "name": "contractor-safety",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "private": true,
   "type": "module",
   "scripts": {
     "test": "node --test",
     "build": "node --test && node scripts/build.mjs",
-    "start": "node server.mjs"
+    "start": "node server.mjs",
+    "local": "node local-server.mjs"
   },
   "engines": {
     "node": "22.x"
