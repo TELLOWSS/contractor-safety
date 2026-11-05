@@ -25,6 +25,9 @@ export async function openLocalStore(path){
  if(!(await db.query("select version from private.local_schema_versions where version='action-edit-v1'")).rows.length){
   await db.exec(await readFile(new URL('../db/local-action-edit.sql',import.meta.url),'utf8'));
  }
+ if(!(await db.query("select version from private.local_schema_versions where version='obligations-v1'")).rows.length){
+  await db.exec(await readFile(new URL('../db/local-obligations.sql',import.meta.url),'utf8'));
+ }
  let queue=Promise.resolve();
  async function execute(actor,action,input={}){
   if(!Object.hasOwn(actors,actor))throw new Error('INVALID_ACTOR');
@@ -39,7 +42,15 @@ export async function openLocalStore(path){
     const result=await tx.query('update sites set active=$1,revision=revision+1 where id=$2 and revision=$3 returning id',[input.active,input.id,input.revision]);
     if(!result.rows.length)throw new Error('REVISION_CONFLICT_OR_ACCESS_DENIED');
    }else if(action==='feedback')await tx.query('insert into pilot_feedback(company_id,site_id,feature,decision,reason) values($1,$2,$3,$4,$5)',[member.company_id,input.site_id,input.feature?.trim(),input.decision,input.reason?.trim()]);
-   else if(action==='addAction')await tx.query('insert into safety_actions(company_id,site_id,title,assignee,due_date) values($1,$2,$3,$4,$5)',[member.company_id,input.site_id,input.title?.trim(),input.assignee?.trim(),input.due_date]);
+   else if(action==='addAction')await tx.query('insert into safety_actions(company_id,site_id,title,assignee,due_date,obligation_id) values($1,$2,$3,$4,$5,$6)',[member.company_id,input.site_id,input.title?.trim(),input.assignee?.trim(),input.due_date,input.obligation_id||null]);
+   else if(action==='saveObligation'){
+    const values=[input.title?.trim(),input.reference?.trim(),input.source_version?.trim(),input.effective_on,input.applicability,input.reason?.trim()??'',input.next_review,input.change_note?.trim()??''];
+    if(input.id){
+     if(!Number.isInteger(input.revision))throw new Error('INVALID_INPUT');
+     const result=await tx.query('update obligations set title=$1,reference=$2,source_version=$3,effective_on=$4,applicability=$5,reason=$6,next_review=$7,change_note=$8,revision=revision+1 where id=$9 and revision=$10 returning id',[...values,input.id,input.revision]);
+     if(!result.rows.length)throw new Error('REVISION_CONFLICT_OR_ACCESS_DENIED');
+    }else await tx.query('insert into obligations(title,reference,source_version,effective_on,applicability,reason,next_review,change_note,company_id) values($1,$2,$3,$4,$5,$6,$7,$8,$9)',[...values,member.company_id]);
+   }
    else if(action==='editAction'){
     if(!Number.isInteger(input.revision))throw new Error('INVALID_INPUT');
     const result=await tx.query('update safety_actions set title=$1,assignee=$2,due_date=$3,note=$4,revision=revision+1 where id=$5 and revision=$6 returning id',[input.title?.trim(),input.assignee?.trim(),input.due_date,input.note?.trim()??'',input.id,input.revision]);
@@ -51,7 +62,7 @@ export async function openLocalStore(path){
     if(!result.rows.length)throw new Error('REVISION_CONFLICT_OR_ACCESS_DENIED');
    }
    else if(!['state','export'].includes(action))throw new Error('INVALID_ACTION');
-   return {actor,member,sites:(await tx.query('select * from sites order by created_at,id')).rows,feedback:(await tx.query('select * from pilot_feedback order by created_at desc')).rows,actions:(await tx.query('select * from safety_actions order by due_date,created_at')).rows};
+   return {actor,member,sites:(await tx.query('select * from sites order by created_at,id')).rows,feedback:(await tx.query('select * from pilot_feedback order by created_at desc')).rows,actions:(await tx.query('select * from safety_actions order by due_date,created_at')).rows,obligations:(await tx.query('select * from obligations order by next_review,title')).rows};
   });
  }
  return {request(actor,action,input){const next=queue.then(()=>execute(actor,action,input));queue=next.catch(()=>{});return next;},async close(){await queue;await db.close();}};
