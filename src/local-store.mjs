@@ -34,6 +34,7 @@ export async function openLocalStore(path){
  if(!(await db.query("select version from private.local_schema_versions where version='expenses-v1'")).rows.length) await db.exec(await readFile(new URL('../db/local-expenses.sql',import.meta.url),'utf8'));
  if(!(await db.query("select version from private.local_schema_versions where version='expense-corrections-v1'")).rows.length) await db.exec(await readFile(new URL('../db/local-expense-corrections.sql',import.meta.url),'utf8'));
  if(!(await db.query("select version from private.local_schema_versions where version='reviews-v1'")).rows.length) await db.exec(await readFile(new URL('../db/local-reviews.sql',import.meta.url),'utf8'));
+ if(!(await db.query("select version from private.local_schema_versions where version='review-actions-v1'")).rows.length) await db.exec(await readFile(new URL('../db/local-review-actions.sql',import.meta.url),'utf8'));
  let queue=Promise.resolve();
  async function execute(actor,action,input={}){
   if(!Object.hasOwn(actors,actor))throw new Error('INVALID_ACTOR');
@@ -71,6 +72,7 @@ export async function openLocalStore(path){
     await tx.query('insert into expense_corrections(company_id,expense_id,revision,spent_on,amount,description,evidence_note,reason) values($1,$2,$3,$4,$5,$6,$7,$8)',[member.company_id,input.expense_id,input.revision,input.spent_on,input.amount,input.description?.trim(),input.evidence_note?.trim(),input.reason?.trim()]);
    }
    else if(action==='addReview')await tx.query('insert into halfyear_reviews(company_id,obligation_id,period_start,period_end,result,findings,evidence_note,followup) values($1,$2,$3,$4,$5,$6,$7,$8)',[member.company_id,input.obligation_id,input.period_start,input.period_end,input.result,input.findings?.trim(),input.evidence_note?.trim(),input.followup?.trim()]);
+   else if(action==='linkReviewAction')await tx.query('insert into review_actions(company_id,review_id,action_id,note) values($1,$2,$3,$4)',[member.company_id,input.review_id,input.action_id,input.note?.trim()]);
    else if(action==='editAction'){
     if(!Number.isInteger(input.revision))throw new Error('INVALID_INPUT');
     const result=await tx.query('update safety_actions set title=$1,assignee=$2,due_date=$3,note=$4,revision=revision+1 where id=$5 and revision=$6 returning id',[input.title?.trim(),input.assignee?.trim(),input.due_date,input.note?.trim()??'',input.id,input.revision]);
@@ -82,7 +84,7 @@ export async function openLocalStore(path){
     if(!result.rows.length)throw new Error('REVISION_CONFLICT_OR_ACCESS_DENIED');
    }
    else if(!['state','export'].includes(action))throw new Error('INVALID_ACTION');
-   return {actor,member,sites:(await tx.query('select * from sites order by created_at,id')).rows,feedback:(await tx.query('select * from pilot_feedback order by created_at desc')).rows,actions:(await tx.query('select * from safety_actions order by due_date,created_at')).rows,obligations:(await tx.query('select * from obligations order by next_review,title')).rows,resources:(await tx.query('select * from obligation_resources order by created_at desc')).rows,expenses:(await tx.query('select * from budget_expenses order by spent_on desc,created_at desc')).rows,expenseCorrections:(await tx.query('select * from expense_corrections order by revision')).rows,reviews:(await tx.query('select * from halfyear_reviews order by created_at desc')).rows};
+   return {actor,member,sites:(await tx.query('select * from sites order by created_at,id')).rows,feedback:(await tx.query('select * from pilot_feedback order by created_at desc')).rows,actions:(await tx.query('select * from safety_actions order by due_date,created_at')).rows,obligations:(await tx.query('select * from obligations order by next_review,title')).rows,resources:(await tx.query('select * from obligation_resources order by created_at desc')).rows,expenses:(await tx.query('select * from budget_expenses order by spent_on desc,created_at desc')).rows,expenseCorrections:(await tx.query('select * from expense_corrections order by revision')).rows,reviews:(await tx.query('select * from halfyear_reviews order by created_at desc')).rows,reviewActions:(await tx.query('select * from review_actions order by created_at')).rows};
   });
  }
  return {request(actor,action,input){const next=queue.then(()=>execute(actor,action,input));queue=next.catch(()=>{});return next;},backup(actor){const next=queue.then(async()=>{if(actor!=='owner'&&actor!=='other')throw new Error('ACCESS_DENIED');return db.dumpDataDir('gzip');});queue=next.catch(()=>{});return next;},async close(){await queue;await db.close();}};
