@@ -1,4 +1,10 @@
 import {mkdir,copyFile} from 'node:fs/promises';
+import {build} from 'esbuild';
 await mkdir('dist',{recursive:true});
-for(const name of ['index.html','app.js','style.css']) await copyFile(`web/${name}`,`dist/${name}`);
+for(const name of ['index.html','app.js','style.css','workspace.html']) await copyFile(`web/${name}`,`dist/${name}`);
+const url=process.env.SUPABASE_URL||'',key=process.env.SUPABASE_PUBLISHABLE_KEY||'';
+if(Boolean(url)!==Boolean(key))throw new Error('Both Supabase URL and publishable key are required');
+if(url&&!/^https:\/\/[a-z0-9]+\.supabase\.co$/.test(url))throw new Error('Invalid Supabase URL');
+if(key&&!key.startsWith('sb_publishable_'))throw new Error('Only a publishable key may be bundled');
+await build({entryPoints:['web/cloud.js'],bundle:true,format:'esm',outfile:'dist/cloud.js',minify:true,define:{__SUPABASE_URL__:JSON.stringify(url),__SUPABASE_KEY__:JSON.stringify(key)}});
 console.log('Static pilot build complete');

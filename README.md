@@ -35,3 +35,11 @@ NEW-PSI의 회사 인증·조치 revision 패턴을 참고했습니다. 기존 �
 4. 현장 실증 의견을 바탕으로 기존 모듈 선별 이식
 
 기존 운영 서비스와 DB는 변경하지 않았습니다.
+
+## v0.3 회사 계정·중앙 저장 기반
+
+회사 계정 화면 `/workspace.html`, Supabase 로그인 클라이언트, 회사·현장별 RLS SQL, 현장별 실증 의견 저장 코드를 추가했습니다. 전용 DB 생성 조직은 사용자 확인 중이며, 현재 운영 배포는 ‘연결 준비 중’ 상태입니다. 로그인·중앙 저장은 아직 활성화되지 않았습니다.
+
+개발 의존성은 package-lock.json에 고정합니다. 최초 `npm ci --ignore-scripts`, 이후 `npm run build`, `npm start` 순서로 실행합니다. `npm start`는 빌드된 dist를 제공합니다.
+
+`npm test`는 총 15개를 통과했습니다. PGlite PostgreSQL에서 사용자 역할과 auth.uid를 재현해 RLS를 검증했으며, 실제 Supabase Auth/Data API 통합 검증은 별도 프로젝트 생성 후 진행합니다. 적용 절차와 미완료 범위는 db/README.md를 참고하세요.

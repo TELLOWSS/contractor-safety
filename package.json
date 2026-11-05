@@ -1,1 +1,21 @@
-{"name":"contractor-safety","version":"0.2.0","private":true,"type":"module","scripts":{"test":"node --test","build":"node --test && node scripts/build.mjs","start":"node server.mjs"},"engines":{"node":"22.x"}}
+{
+  "name": "contractor-safety",
+  "version": "0.3.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "build": "node --test && node scripts/build.mjs",
+    "start": "node server.mjs"
+  },
+  "engines": {
+    "node": "22.x"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "2.119.0"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.5.15",
+    "esbuild": "0.28.2"
+  }
+}
