@@ -83,5 +83,5 @@ export async function openLocalStore(path){
    return {actor,member,sites:(await tx.query('select * from sites order by created_at,id')).rows,feedback:(await tx.query('select * from pilot_feedback order by created_at desc')).rows,actions:(await tx.query('select * from safety_actions order by due_date,created_at')).rows,obligations:(await tx.query('select * from obligations order by next_review,title')).rows,resources:(await tx.query('select * from obligation_resources order by created_at desc')).rows,expenses:(await tx.query('select * from budget_expenses order by spent_on desc,created_at desc')).rows,expenseCorrections:(await tx.query('select * from expense_corrections order by revision')).rows};
   });
  }
- return {request(actor,action,input){const next=queue.then(()=>execute(actor,action,input));queue=next.catch(()=>{});return next;},async close(){await queue;await db.close();}};
+ return {request(actor,action,input){const next=queue.then(()=>execute(actor,action,input));queue=next.catch(()=>{});return next;},backup(actor){const next=queue.then(async()=>{if(actor!=='owner'&&actor!=='other')throw new Error('ACCESS_DENIED');return db.dumpDataDir('gzip');});queue=next.catch(()=>{});return next;},async close(){await queue;await db.close();}};
 }

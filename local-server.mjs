@@ -12,6 +12,10 @@ const server=http.createServer(async(req,res)=>{
  res.setHeader('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self'; frame-ancestors 'none'; base-uri 'none'; object-src 'none'");
  const json=(code,value)=>{res.writeHead(code,{'Content-Type':'application/json; charset=utf-8'});res.end(JSON.stringify(value));};
  if(req.headers.host!==`127.0.0.1:${port}`){json(403,{error:'HOST_DENIED'});return;}
+ if(req.url==='/backup'){
+  if(req.method!=='POST'||req.headers.origin!==origin||!req.headers['content-type']?.startsWith('application/json')){json(403,{error:'ORIGIN_DENIED'});return;}
+  try{let raw='';for await(const chunk of req){raw+=chunk;if(raw.length>256){json(413,{error:'INPUT_TOO_LARGE'});return;}}const blob=await store.backup(JSON.parse(raw).actor);res.writeHead(200,{'Content-Type':'application/gzip','Content-Disposition':'attachment; filename="contractor-safety-full-backup.tar.gz"'});res.end(Buffer.from(await blob.arrayBuffer()));}catch{json(403,{error:'BACKUP_FAILED'});}return;
+ }
  if(req.url==='/api'){
   if(req.method!=='POST'||req.headers.origin!==origin||!req.headers['content-type']?.startsWith('application/json')){json(403,{error:'ORIGIN_DENIED'});return;}
   try{let raw='';for await(const chunk of req){raw+=chunk;if(Buffer.byteLength(raw)>16384){json(413,{error:'INPUT_TOO_LARGE'});return;}}
