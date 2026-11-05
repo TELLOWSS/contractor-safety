@@ -21,7 +21,7 @@ Node.js 22: `npm test`, `npm run build`, `npm start` (http://127.0.0.1:4173).
 
 https://contractor-safety.vercel.app
 Vercel: tellowss-projects / contractor-safety
-2026-11-05 소스 직접 배포 READY 확인. GitHub 생성과 자동 배포 연결은 로그인 대기 중입니다.
+2026-11-05 소스 직접 배포 READY 확인. GitHub TELLOWSS/contractor-safety 연결 완료. main 푸시로 자동 배포합니다.
 
 ## 기존 제품 활용
 
@@ -29,7 +29,7 @@ NEW-PSI의 회사 인증·조치 revision 패턴을 참고했습니다. 기존 �
 
 ## 다음 단계
 
-1. GitHub 비공개 저장소 생성 및 Vercel 자동 배포 연결
+1. GitHub 저장소 및 Vercel 자동 배포 연결 완료
 2. 회사·현장별 서버 인증·인가와 중앙 저장소
 3. 증빙·조치 검토 흐름, 감사 이력
 4. 현장 실증 의견을 바탕으로 기존 모듈 선별 이식
