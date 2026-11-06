@@ -62,6 +62,7 @@ export async function openLocalStore(path){
  if(!(await db.query("select version from private.local_schema_versions where version='site-work-permits-v1'")).rows.length) await db.exec(await readFile(new URL('../db/local-site-work-permits.sql',import.meta.url),'utf8'));
  if(!(await db.query("select version from private.local_schema_versions where version='site-work-permit-revisions-v1'")).rows.length) await db.exec(await readFile(new URL('../db/local-site-work-permit-revisions.sql',import.meta.url),'utf8'));
  if(!(await db.query("select version from private.local_schema_versions where version='site-work-permit-note-revisions-v1'")).rows.length) await db.exec(await readFile(new URL('../db/local-site-work-permit-note-revisions.sql',import.meta.url),'utf8'));
+ if(!(await db.query("select version from private.local_schema_versions where version='work-permit-note-version-v1'")).rows.length) await db.exec(await readFile(new URL('../db/local-work-permit-note-version.sql',import.meta.url),'utf8'));
  if(!(await db.query("select version from private.local_schema_versions where version='worker-opinion-revisions-v1'")).rows.length) await db.exec(await readFile(new URL('../db/local-worker-opinion-revisions.sql',import.meta.url),'utf8'));
  if(!(await db.query("select version from private.local_schema_versions where version='site-action-photos-v1'")).rows.length) await db.exec(await readFile(new URL('../db/local-site-action-photos.sql',import.meta.url),'utf8'));
  if(!(await db.query("select version from private.local_schema_versions where version='action-photo-upload-id-v1'")).rows.length) await db.exec(await readFile(new URL('../db/local-action-photo-upload-id.sql',import.meta.url),'utf8'));
@@ -152,7 +153,10 @@ export async function openLocalStore(path){
     if(!Number.isInteger(input.revision)||input.revision<1)throw new Error('INVALID_INPUT');
     await tx.query('insert into site_work_permit_note_revisions(company_id,site_id,work_permit_id,note_id,revision,kind,noted_on,detail,reason) values($1,$2,$3,$4,$5,$6,$7,$8,$9)',[member.company_id,input.site_id,input.work_permit_id,input.note_id,input.revision,input.kind,input.noted_on,input.detail?.trim(),input.reason?.trim()]);
    }
-   else if(action==='addWorkPermitNote')await tx.query('insert into site_work_permit_notes(company_id,site_id,work_permit_id,kind,noted_on,detail) values($1,$2,$3,$4,$5,$6)',[member.company_id,input.site_id,input.work_permit_id,input.kind,input.noted_on,input.detail?.trim()]);
+   else if(action==='addWorkPermitNote'){
+    if(input.permit_revision!==undefined){if(!Number.isInteger(input.permit_revision)||input.permit_revision<0)throw new Error('INVALID_INPUT');const current=await tx.query('select coalesce(max(revision),0)::int as revision from site_work_permit_revisions where company_id=$1 and site_id=$2 and work_permit_id=$3',[member.company_id,input.site_id,input.work_permit_id]);if(current.rows[0].revision!==input.permit_revision)throw new Error('REVISION_CONFLICT');}
+    await tx.query('insert into site_work_permit_notes(company_id,site_id,work_permit_id,kind,noted_on,detail) values($1,$2,$3,$4,$5,$6)',[member.company_id,input.site_id,input.work_permit_id,input.kind,input.noted_on,input.detail?.trim()]);
+   }
    else if(action==='revisePpeIssue'){
     if(!Number.isInteger(input.revision)||input.revision<1||!/^\d{1,7}$/.test(String(input.quantity))||Number(input.quantity)<1||Number(input.quantity)>1000000)throw new Error('INVALID_INPUT');
     await tx.query('insert into site_ppe_revisions(company_id,site_id,issue_id,revision,issued_on,item_name,quantity,unit,recipient_note,note,reason) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)',[member.company_id,input.site_id,input.issue_id,input.revision,input.issued_on,input.item_name?.trim(),Number(input.quantity),input.unit?.trim(),input.recipient_note?.trim()??'',input.note?.trim()??'',input.reason?.trim()]);
