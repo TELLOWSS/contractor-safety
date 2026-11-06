@@ -1,12 +1,12 @@
 # 기획 대비 개발 체크리스트
 
-2026-11-06 · v0.48.0
+2026-11-06 · v0.49.0
 
 기준: 골조협력사 안전관리 통합프로그램 기획서 v1.0, §12 F01~F16 / §20 / §21
 
 **완료 0 / 부분 구현 15 / 미착수 1 — 원 기획 16개 기능 기준**
 
-개선조치 사진을 최대 1MB JPEG로 최적화하고, 전송 실패 시 PC 브라우저 대기·수동 재전송과 최적화 사진 복구를 지원합니다. 실제 모바일·통신 장애 실증은 남았습니다.
+진행 현장별 요구사항·양식의 확인 상태, 기록된 종료일 및 파일 연결 여부를 한곳에서 확인할 수 있습니다. 원도급사 승인이나 유효성은 별도 확인이 필요합니다.
 
 사용자 요청에 따라 추가 서비스 비용 0원. PC 로컬 PostgreSQL과 가상 역할로 개발하며 실제 로그인·15현장 공동 운영은 미지원입니다. TBM 참석 대상·본인확인·서명·교육별 이수와 누락은 저장 필수항목이 아닙니다.
 
@@ -59,6 +59,7 @@
 - [x] 현장 개선조치의 가상 사진 첨부와 버전·해시·백업 복원 검증
 - [x] 개선조치 사진 업로드 전 JPEG 자동 크기·용량 조정 로직과 실패 차단 시험
 - [x] 개선조치 사진 최적화 1MB 상한 및 저장 전 미리보기·크기 비교
+- [x] 진행 현장의 원도급사 요구사항·양식 확인 상태, 기록된 종료일과 파일 연결 여부 모아보기
 
 ## 원 기획 전체 기준
 
@@ -123,9 +124,9 @@
   - 남은 조건: 출처·검토·수동 대체·무료 실행 가능성 검증
   - 근거: 비용 제약으로 후순위, 외부 유료 API 미사용
 - [ ] **F16 P2 원청 양식·외부 연동 — 부분 구현**
-  - 구현: 현장별 원도급사 명칭·관계·시작일 및 별도 종료일 기록, 접근 범위 로컬 시험; 현장별 요구사항·양식 목록과 출처·확인 상태·선택적 원도급사 연결; 요구사항·양식 메타데이터의 원본 보존 정정과 변경 사유·이력; 선택적 적용 시작·종료일 및 변경 이력별 보존; 연결 관계의 정정된 원도급사명 표시; 원도급사 관계 종료일 정정; 양식 파일을 해당 기록 버전에 연결해 PC DB에 저장·다운로드; 현재 기록과 이전 기록의 연결 파일 구분 및 확인 안내; 이전 파일의 현재 기록 재연결과 사유·이력 보존
+  - 구현: 현장별 원도급사 명칭·관계·시작일 및 별도 종료일 기록, 접근 범위 로컬 시험; 현장별 요구사항·양식 목록과 출처·확인 상태·선택적 원도급사 연결; 요구사항·양식 메타데이터의 원본 보존 정정과 변경 사유·이력; 선택적 적용 시작·종료일 및 변경 이력별 보존; 연결 관계의 정정된 원도급사명 표시; 원도급사 관계 종료일 정정; 양식 파일을 해당 기록 버전에 연결해 PC DB에 저장·다운로드; 현재 기록과 이전 기록의 연결 파일 구분 및 확인 안내; 이전 파일의 현재 기록 재연결과 사유·이력 보존; 진행 현장 기준 최신 기록의 확인 상태·종료일 경과 및 30일 이내·파일 미연결 목록
   - 남은 조건: 원도급사 공통 식별, 파일 삭제·공유·대용량·실제 인증, 승인된 제출본·서식 매핑 및 현장 실증
-  - 근거: db/local-site-primes.sql, test/site-primes.test.mjs; 원도급사 양식·자동작성 미구현; test/site-requirements.test.mjs; test/site-requirement-revisions.test.mjs; test/site-requirement-period.test.mjs; test/site-prime-revisions.test.mjs; test/site-prime-end-revisions.test.mjs; test/site-requirement-files.test.mjs; test/site-requirement-file-view.test.mjs; test/site-requirement-file-links.test.mjs
+  - 근거: db/local-site-primes.sql, test/site-primes.test.mjs; 원도급사 양식·자동작성 미구현; test/site-requirements.test.mjs; test/site-requirement-revisions.test.mjs; test/site-requirement-period.test.mjs; test/site-prime-revisions.test.mjs; test/site-prime-end-revisions.test.mjs; test/site-requirement-files.test.mjs; test/site-requirement-file-view.test.mjs; test/site-requirement-file-links.test.mjs; test/site-requirement-attention.test.mjs (날짜 경계·정정·파일 재연결 모의 시험)
 
 ## 다음 우선순위
 
