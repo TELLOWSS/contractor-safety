@@ -1,8 +1,8 @@
 {
   "updated": "2026-11-06",
-  "version": "0.66.0",
+  "version": "0.67.0",
   "baseline": "골조협력사 안전관리 통합프로그램 기획서 v1.0, §12 F01~F16 / §20 / §21",
-  "assessment": "접근 가능한 진행 현장별 TBM 기록 수와 최근 기록일을 확인할 수 있습니다. 기록 유무는 TBM 실시나 법적 이행 판정이 아니며 현장 실증은 남았습니다.",
+  "assessment": "오늘 이후 작업 중 허가 필요 여부나 관리 주체가 확인 전인 기록을 현장·원도급사와 함께 확인할 수 있습니다. 실제 허가 및 현장 절차 검증은 남았습니다.",
   "constraint": "사용자 요청에 따라 추가 서비스 비용 0원. PC 로컬 PostgreSQL과 가상 역할로 개발하며 실제 로그인·15현장 공동 운영은 미지원입니다. TBM 참석 대상·본인확인·서명·교육별 이수와 누락은 저장 필수항목이 아닙니다.",
   "items": [
     {
@@ -91,9 +91,9 @@
       "priority": "P1",
       "name": "PTW·안전시설",
       "status": "partial",
-      "done": "현장별 작업 조건, 허가 필요 여부·관리 주체 입력 및 선택적 원도급사 연결과 확인 메모; 작업 확인 내용 정정·사유 및 원본 이력 보존; 확인 메모 정정·사유 및 원본 이력 보존",
+      "done": "현장별 작업 조건, 허가 필요 여부·관리 주체 입력 및 선택적 원도급사 연결과 확인 메모; 작업 확인 내용 정정·사유 및 원본 이력 보존; 확인 메모 정정·사유 및 원본 이력 보존; 진행 현장의 오늘 이후 작업 중 허가 필요 여부·관리 주체 확인 전 항목 모아보기",
       "remaining": "실제 원도급사 양식·허가 신청·발급·승인·안전시설 확인·변경·중지·종료 및 원본 증빙과 현장 실증",
-      "evidence": "db/local-site-work-permits.sql; test/site-work-permits.test.mjs (현장 격리·권한·백업 복원 가상자료); test/site-work-permit-revisions.test.mjs; test/site-work-permit-note-revisions.test.mjs"
+      "evidence": "db/local-site-work-permits.sql; test/site-work-permits.test.mjs (현장 격리·권한·백업 복원 가상자료); test/site-work-permit-revisions.test.mjs; test/site-work-permit-note-revisions.test.mjs; test/work-permit-attention.test.mjs (날짜·최신 정정·현장 범위·출력 안전성 시험); PC 개발 브라우저 가상자료 확인 전 항목 0건 화면 확인 (2026-11-06)"
     },
     {
       "id": "F11",
@@ -218,7 +218,8 @@
     "TBM 조회 범위의 인쇄용 목록 및 선택 관리 범위 표시",
     "같은 현장 위험요인·안전조치의 TBM 초안 선택 가져오기",
     "TBM 저장 시 위험 기록 버전 변경 감지와 초안 연결 변경 재확인",
-    "진행 현장별 TBM 기록 현황과 현장별 목록 조회"
+    "진행 현장별 TBM 기록 현황과 현장별 목록 조회",
+    "작업허가 필요 여부·관리 주체 확인 전 기록 모아보기"
   ],
   "next": [
     "F09: 실제 모바일 기기 촬영·원본과 오프라인 전송 가능성 실증",
