@@ -1,12 +1,12 @@
 # 기획 대비 개발 체크리스트
 
-2026-11-06 · v0.59.0
+2026-11-06 · v0.60.0
 
 기준: 골조협력사 안전관리 통합프로그램 기획서 v1.0, §12 F01~F16 / §20 / §21
 
 **완료 0 / 부분 구현 15 / 미착수 1 — 원 기획 16개 기능 기준**
 
-골조 위험 기록을 현장·작업 종류·기간·내용으로 조회하며, TBM과 개선조치에서 연결된 기록으로 이동할 수 있습니다. 실제 현장 실증은 남았습니다.
+골조 위험 기록을 조건별로 조회하고 연결 조치·TBM과 현장 확인 메모를 포함한 인쇄용 목록을 만들 수 있습니다. 실제 PDF 및 현장 실증은 남았습니다.
 
 사용자 요청에 따라 추가 서비스 비용 0원. PC 로컬 PostgreSQL과 가상 역할로 개발하며 실제 로그인·15현장 공동 운영은 미지원입니다. TBM 참석 대상·본인확인·서명·교육별 이수와 누락은 저장 필수항목이 아닙니다.
 
@@ -70,6 +70,7 @@
 - [x] 위험 현장 확인 메모의 연결 당시 위험 버전 기록 및 기존 버전 미확인 구분
 - [x] 위험 의견·현장 확인 메모 정정 이력 및 최초 연결 위험 버전 보존
 - [x] 골조 위험 기록 현장·작업 종류·작업 기간·내용 조합 조회
+- [x] 골조 위험 기록과 연결 현황의 조건별 인쇄용 목록
 
 ## 원 기획 전체 기준
 
@@ -98,9 +99,9 @@
   - 남은 조건: 실제 로그인·세션·운영 배포 승인·롤백 검증
   - 근거: package.json, local-server.mjs; 가상 역할은 실제 인증 아님
 - [ ] **F07 P1 골조 위험성평가·조치 — 부분 구현**
-  - 구현: 골조 작업 위험·안전조치 및 같은 현장 조치 연결, 의견 전달·현장 확인·조치 후 재확인 메모; 같은 현장 위험 기록과 TBM의 양방향 이동 및 연결 기록 표시; 같은 현장 개선조치와 위험 기록의 양방향 조회 및 조치 조회 조건 안내; 위험 기록 원본·정정 이력과 사유 보존 및 TBM 연결 당시 위험 버전 기록; 신규 의견·현장 확인 기록의 당시 위험 버전 보존 및 입력 중 변경 충돌 차단, 기존 기록 버전 미확인 표시; 의견·현장 확인 메모의 원본·정정 이력 및 사유 보존, 최초 연결 위험 버전 유지; 최신 위험 기록의 현장·작업 종류·기간·내용 조합 조회 및 연결 기록 이동
+  - 구현: 골조 작업 위험·안전조치 및 같은 현장 조치 연결, 의견 전달·현장 확인·조치 후 재확인 메모; 같은 현장 위험 기록과 TBM의 양방향 이동 및 연결 기록 표시; 같은 현장 개선조치와 위험 기록의 양방향 조회 및 조치 조회 조건 안내; 위험 기록 원본·정정 이력과 사유 보존 및 TBM 연결 당시 위험 버전 기록; 신규 의견·현장 확인 기록의 당시 위험 버전 보존 및 입력 중 변경 충돌 차단, 기존 기록 버전 미확인 표시; 의견·현장 확인 메모의 원본·정정 이력 및 사유 보존, 최초 연결 위험 버전 유지; 최신 위험 기록의 현장·작업 종류·기간·내용 조합 조회 및 연결 기록 이동; 조회 범위 내 최신 위험·확인 메모·연결 조치와 TBM 수의 인쇄용 목록
   - 남은 조건: 위험도 평가, 실제 근로자 본인확인·참여·서명, 전후 사진, 정식 승인, 기존 위험 기록의 연결 조치 변경, 현장 실증
-  - 근거: test/work-risks.test.mjs, test/risk-observations.test.mjs; 가상 의견·재확인 화면 검증; test/risk-tbm-links.test.mjs (현장 범위·선택 연결 모의 시험); test/risk-action-links.test.mjs (현장 범위·화면 출력 모의 시험); db/local-work-risk-revisions.sql; test/work-risk-revisions.test.mjs (권한·정정·TBM 당시 기록·백업 복원 시험); db/local-risk-observation-version.sql; test/risk-observation-version.test.mjs (버전·충돌·기존 기록·백업 시험); db/local-risk-observation-revisions.sql; test/risk-observation-revisions.test.mjs (권한·범위·충돌·백업 시험); test/work-risk-filter.test.mjs (기간 경계·최신 정정·검색 모의 시험)
+  - 근거: test/work-risks.test.mjs, test/risk-observations.test.mjs; 가상 의견·재확인 화면 검증; test/risk-tbm-links.test.mjs (현장 범위·선택 연결 모의 시험); test/risk-action-links.test.mjs (현장 범위·화면 출력 모의 시험); db/local-work-risk-revisions.sql; test/work-risk-revisions.test.mjs (권한·정정·TBM 당시 기록·백업 복원 시험); db/local-risk-observation-version.sql; test/risk-observation-version.test.mjs (버전·충돌·기존 기록·백업 시험); db/local-risk-observation-revisions.sql; test/risk-observation-revisions.test.mjs (권한·범위·충돌·백업 시험); test/work-risk-filter.test.mjs (기간 경계·최신 정정·검색 모의 시험); test/work-risk-report.test.mjs (범위·정정·현장 격리·출력 안전성 모의 시험)
 - [ ] **F08 P1 TBM·교육·본인확인 — 부분 구현**
   - 구현: 현장별 TBM 기본 기록 및 위험 기록 연결, 참석 기록 관리주체·교육 관련 명칭·관리 범위 메모 선택 입력; 미입력 상태 보존; 같은 현장 위험 기록과 TBM의 양방향 이동 및 연결 기록 표시
   - 남은 조건: 현장별 선택 기능과 실제 업무 범위 실증, 해당 법적 의무 및 관리주체 별도 검토; 실제 인증·서명·교육 이수 관리는 미구현이며 TBM 저장에 필수 아님
@@ -126,9 +127,9 @@
   - 남은 조건: 실제 발생시각·신고·기한·원본 증빙, 시정명령·정식 조사·승인·종결·타현장 전파와 현장 실증
   - 근거: db/local-site-incidents.sql; test/site-incidents.test.mjs (권한·현장 격리·백업 복원 가상자료); test/site-incident-revisions.test.mjs; test/site-incident-update-revisions.test.mjs
 - [ ] **F14 P1 PDF·ZIP·검색 — 부분 구현**
-  - 구현: 현장·상태·검색·기한 필터, 인쇄용 조치대장·JSON; 적용 조회 범위의 현장 양식·요구사항 인쇄용 목록
+  - 구현: 현장·상태·검색·기한 필터, 인쇄용 조치대장·JSON; 적용 조회 범위의 현장 양식·요구사항 인쇄용 목록; 조회 범위의 골조 위험 기록 인쇄용 목록
   - 남은 조건: 파일 포함 PDF/ZIP, 버전·누락목록, 1,000장 부하·복구
-  - 근거: test/action-view.test.mjs; 실제 PDF 파일 저장·대량 출력 미검증; test/site-requirement-report.test.mjs
+  - 근거: test/action-view.test.mjs; 실제 PDF 파일 저장·대량 출력 미검증; test/site-requirement-report.test.mjs; test/work-risk-report.test.mjs
 - [ ] **F15 P2 AI 초안·OCR·번역 — 미착수**
   - 구현: 없음
   - 남은 조건: 출처·검토·수동 대체·무료 실행 가능성 검증
