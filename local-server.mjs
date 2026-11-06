@@ -21,6 +21,13 @@ const server=http.createServer(async(req,res)=>{
   if(req.method!=='POST'||req.headers.origin!==origin||!req.headers['content-type']?.startsWith('application/json')){json(403,{error:'ORIGIN_DENIED'});return;}
   try{let raw='';for await(const chunk of req){raw+=chunk;if(raw.length>256){json(413,{error:'INPUT_TOO_LARGE'});return;}}const blob=await store.backup(JSON.parse(raw).actor);res.writeHead(200,{'Content-Type':'application/gzip','Content-Disposition':'attachment; filename="contractor-safety-full-backup.tar.gz"'});res.end(Buffer.from(await blob.arrayBuffer()));}catch{json(403,{error:'BACKUP_FAILED'});}return;
  }
+ if(req.url==='/file-api'){
+  if(req.method!=='POST'||req.headers.origin!==origin||!req.headers['content-type']?.startsWith('application/json')){json(403,{error:'ORIGIN_DENIED'});return;}
+  try{let raw='';for await(const chunk of req){raw+=chunk;if(Buffer.byteLength(raw)>2850000){json(413,{error:'INPUT_TOO_LARGE'});return;}}
+   const body=JSON.parse(raw);if(!['addRequirementFile','getRequirementFile'].includes(body.action)){json(400,{error:'INVALID_ACTION'});return;}
+   const result=await store.request(body.actor,body.action,body.input);json(200,body.action==='getRequirementFile'?result:{saved:true});
+  }catch(e){const code=['INVALID_FILE','REVISION_CONFLICT'].find(code=>e.message.includes(code))??'ACCESS_OR_INPUT_DENIED';json(400,{error:code});}return;
+ }
  if(req.url==='/api'){
   if(req.method!=='POST'||req.headers.origin!==origin||!req.headers['content-type']?.startsWith('application/json')){json(403,{error:'ORIGIN_DENIED'});return;}
   try{let raw='';for await(const chunk of req){raw+=chunk;if(Buffer.byteLength(raw)>16384){json(413,{error:'INPUT_TOO_LARGE'});return;}}
