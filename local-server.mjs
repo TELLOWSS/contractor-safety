@@ -15,7 +15,7 @@ const server=http.createServer(async(req,res)=>{
  if(req.headers.host!==`127.0.0.1:${port}`){json(403,{error:'HOST_DENIED'});return;}
  if(req.url==='/verify-backup'){
   if(req.method!=='POST'||req.headers.origin!==origin||req.headers['content-type']!=='application/gzip'||!['owner','other'].includes(req.headers['x-pilot-role'])){json(403,{error:'ACCESS_DENIED'});return;}
-  try{const parts=[];let size=0;for await(const chunk of req){size+=chunk.length;if(size>50*1024*1024){json(413,{error:'TOO_LARGE'});return;}parts.push(chunk);}const counts=await inspectBackup(new Blob(parts,{type:'application/gzip'}));json(200,{counts});}catch{json(400,{error:'VERIFY_FAILED'});}return;
+  try{const parts=[];let size=0;for await(const chunk of req){size+=chunk.length;if(size>50*1024*1024){json(413,{error:'TOO_LARGE'});return;}parts.push(chunk);}const counts=await inspectBackup(new Blob(parts,{type:'application/gzip'}));json(200,{counts});}catch(e){const code=['BACKUP_FILE_LIMIT','BACKUP_FILE_MISMATCH'].find(x=>e.message.includes(x))??'VERIFY_FAILED';json(400,{error:code});}return;
  }
  if(req.url==='/backup'){
   if(req.method!=='POST'||req.headers.origin!==origin||!req.headers['content-type']?.startsWith('application/json')){json(403,{error:'ORIGIN_DENIED'});return;}
