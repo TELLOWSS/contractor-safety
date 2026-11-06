@@ -11,3 +11,5 @@ User requirement: follow the original framing-contractor safety plan and show a 
 - Preserve existing operational apps and databases. Back up the local DB before schema upgrades. Never commit .local-data or real personal records.
 
 - For F08, attendance rosters, identity verification, signatures, education completion and omissions must not be required for TBM saving. Site management scope is optional and unknown when not provided; assess applicable legal obligations separately for each situation.
+
+- Multiple prime contractors and site-specific rules/forms are core product requirements. Model contractor-site relationships and dated versions, retain subcontractor-owned records, distinguish unknown from confirmed, and never assume one contractor per site or automatic external submission. See docs/contractor-form-strategy.md.
