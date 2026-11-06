@@ -1,7 +1,7 @@
 export const PHOTO_MAX_INPUT_BYTES=30*1024*1024;
 export const PHOTO_MAX_PIXELS=60_000_000;
-export const PHOTO_MAX_SIDE=2560;
-export const PHOTO_TARGET_BYTES=2*1024*1024;
+export const PHOTO_MAX_SIDE=1920;
+export const PHOTO_TARGET_BYTES=1*1024*1024;
 const JPEG_QUALITIES=[0.86,0.75,0.64,0.52,0.40];
 function defaultDecode(file){
  return new Promise((resolve,reject)=>{

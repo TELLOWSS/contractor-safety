@@ -110,9 +110,9 @@ export async function openLocalStore(path){
     await tx.query("insert into site_requirement_files(company_id,site_id,requirement_id,requirement_revision,filename,byte_size,sha256,content) values($1,$2,$3,$4,$5,$6,$7,decode($8,'base64'))",[member.company_id,input.site_id,input.requirement_id,input.requirement_revision,input.filename.trim(),data.length,createHash('sha256').update(data).digest('hex'),input.content_base64]);
    }
    else if(action==='addActionPhoto'){
-    if(!Number.isInteger(input.action_revision)||input.action_revision<1||typeof input.content_base64!=='string'||input.content_base64.length>2796204||input.content_base64.length%4!==0||!/^[A-Za-z0-9+/]*={0,2}$/.test(input.content_base64))throw new Error('INVALID_FILE');
+    if(!Number.isInteger(input.action_revision)||input.action_revision<1||typeof input.content_base64!=='string'||input.content_base64.length>1398104||input.content_base64.length%4!==0||!/^[A-Za-z0-9+/]*={0,2}$/.test(input.content_base64))throw new Error('INVALID_FILE');
     const data=Buffer.from(input.content_base64,'base64'),png=data.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10])),jpeg=data.length>=3&&data[0]===255&&data[1]===216&&data[2]===255,webp=data.length>=12&&data.toString('ascii',0,4)==='RIFF'&&data.toString('ascii',8,12)==='WEBP';
-    if(!data.length||data.length>2097152||data.toString('base64')!==input.content_base64||!(png||jpeg||webp)||typeof input.filename!=='string'||/[\/\\\x00-\x1f\x7f]/.test(input.filename))throw new Error('INVALID_FILE');
+    if(!data.length||data.length>1048576||data.toString('base64')!==input.content_base64||!(png||jpeg||webp)||typeof input.filename!=='string'||/[\/\\\x00-\x1f\x7f]/.test(input.filename))throw new Error('INVALID_FILE');
     await tx.query("insert into site_action_photos(company_id,site_id,action_id,action_revision,phase,filename,byte_size,sha256,content) values($1,$2,$3,$4,$5,$6,$7,$8,decode($9,'base64'))",[member.company_id,input.site_id,input.action_id,input.action_revision,input.phase,input.filename.trim(),data.length,createHash('sha256').update(data).digest('hex'),input.content_base64]);
    }
    else if(action==='getActionPhoto'){
