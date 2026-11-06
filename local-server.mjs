@@ -7,7 +7,7 @@ await import('./scripts/progress.mjs');
 const port=4174,origin=`http://127.0.0.1:${port}`;
 await mkdir(new URL('./.local-data/',import.meta.url),{recursive:true});
 const store=await openLocalStore(fileURLToPath(new URL('./.local-data/postgres',import.meta.url)));
-const files={'/':'local.html','/site-primes-ui.js':'site-primes-ui.js','/progress.html':'progress.html','/tbm-ui.js':'tbm-ui.js','/work-risks-ui.js':'work-risks-ui.js','/review-coverage.js':'review-coverage.js','/reviews-ui.js':'reviews-ui.js','/resources-ui.js':'resources-ui.js','/obligations-ui.js':'obligations-ui.js','/local.js':'local.js','/actions-ui.js':'actions-ui.js','/action-view.js':'action-view.js','/style.css':'style.css'};
+const files={'/':'local.html','/site-requirements-ui.js':'site-requirements-ui.js','/site-primes-ui.js':'site-primes-ui.js','/progress.html':'progress.html','/tbm-ui.js':'tbm-ui.js','/work-risks-ui.js':'work-risks-ui.js','/review-coverage.js':'review-coverage.js','/reviews-ui.js':'reviews-ui.js','/resources-ui.js':'resources-ui.js','/obligations-ui.js':'obligations-ui.js','/local.js':'local.js','/actions-ui.js':'actions-ui.js','/action-view.js':'action-view.js','/style.css':'style.css'};
 const server=http.createServer(async(req,res)=>{
  res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('Cache-Control','no-store');
  res.setHeader('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self'; frame-ancestors 'none'; base-uri 'none'; object-src 'none'");

@@ -4,7 +4,7 @@ import {openLocalStore} from '../src/local-store.mjs';
 test('site prime relationships preserve history and isolate company and site',async()=>{
  const db=await openLocalStore();
  try{
-  const owner=await db.request('owner','state'), site=owner.sites[0],another=owner.sites[1];
+  const owner=await db.request('owner','state'), site=(await db.request('manager','state')).sites[0],another=owner.sites.find(s=>s.id!==site.id);
   const input={site_id:site.id,prime_name:'가상 원도급 A',relationship:'원도급사',starts_on:'2026-01-01',note:''};
   await assert.rejects(db.request('manager','addSitePrime',input));
   let result=await db.request('owner','addSitePrime',input);const id=result.sitePrimes[0].id;
