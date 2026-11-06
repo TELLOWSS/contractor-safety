@@ -25,7 +25,7 @@ const server=http.createServer(async(req,res)=>{
   if(req.method!=='POST'||req.headers.origin!==origin||!req.headers['content-type']?.startsWith('application/json')){json(403,{error:'ORIGIN_DENIED'});return;}
   try{let raw='';for await(const chunk of req){raw+=chunk;if(Buffer.byteLength(raw)>16384){json(413,{error:'INPUT_TOO_LARGE'});return;}}
    const body=JSON.parse(raw);const result=await store.request(body.actor,body.action,body.input);json(200,{...result,actors});
-  }catch(e){const code=['ACTIVE_SITE_LIMIT','REVISION_CONFLICT','INDEPENDENT_REVIEW_REQUIRED','EVIDENCE_REQUIRED','NOTE_REQUIRED','INVALID_TRANSITION','EDIT_LOCKED','NO_CHANGES','REASON_REQUIRED','OBLIGATION_ACCESS_DENIED'].find(code=>e.message.includes(code))??'ACCESS_OR_INPUT_DENIED';json(400,{error:code});}return;
+  }catch(e){const code=['INVALID_REQUIREMENT_PERIOD','ACTIVE_SITE_LIMIT','REVISION_CONFLICT','INDEPENDENT_REVIEW_REQUIRED','EVIDENCE_REQUIRED','NOTE_REQUIRED','INVALID_TRANSITION','EDIT_LOCKED','NO_CHANGES','REASON_REQUIRED','OBLIGATION_ACCESS_DENIED'].find(code=>e.message.includes(code))??'ACCESS_OR_INPUT_DENIED';json(400,{error:code});}return;
  }
  if(req.method!=='GET'||!files[req.url]){res.writeHead(404).end();return;}
  try{res.setHeader('Content-Type',req.url.endsWith('.js')?'text/javascript; charset=utf-8':req.url.endsWith('.css')?'text/css; charset=utf-8':'text/html; charset=utf-8');res.end(await readFile(new URL(`./web/${files[req.url]}`,import.meta.url)));}catch{res.writeHead(500).end('Unable to load page');}

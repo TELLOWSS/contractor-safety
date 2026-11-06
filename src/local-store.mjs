@@ -43,6 +43,7 @@ export async function openLocalStore(path){
  if(!(await db.query("select version from private.local_schema_versions where version='site-primes-v1'")).rows.length) await db.exec(await readFile(new URL('../db/local-site-primes.sql',import.meta.url),'utf8'));
  if(!(await db.query("select version from private.local_schema_versions where version='site-requirements-v1'")).rows.length) await db.exec(await readFile(new URL('../db/local-site-requirements.sql',import.meta.url),'utf8'));
  if(!(await db.query("select version from private.local_schema_versions where version='site-requirement-revisions-v1'")).rows.length) await db.exec(await readFile(new URL('../db/local-site-requirement-revisions.sql',import.meta.url),'utf8'));
+ if(!(await db.query("select version from private.local_schema_versions where version='site-requirement-period-v1'")).rows.length) await db.exec(await readFile(new URL('../db/local-site-requirement-period.sql',import.meta.url),'utf8'));
  let queue=Promise.resolve();
  async function execute(actor,action,input={}){
   if(!Object.hasOwn(actors,actor))throw new Error('INVALID_ACTOR');
@@ -51,6 +52,7 @@ export async function openLocalStore(path){
    await tx.exec('set local role authenticated');
    const member=(await tx.query('select m.company_id,m.role,c.name from company_members m join companies c on c.id=m.company_id where m.active')).rows[0];
    if(!member)throw new Error('ACCESS_DENIED');
+   if(['addSiteRequirement','reviseSiteRequirement'].includes(action)&&input.applicable_from&&input.applicable_until&&input.applicable_from>input.applicable_until)throw new Error('INVALID_REQUIREMENT_PERIOD');
    if(action==='addSite')await tx.query('insert into sites(company_id,name) values($1,$2)',[member.company_id,input.name?.trim()]);
    else if(action==='toggleSite'){
     if(typeof input.active!=='boolean'||!Number.isInteger(input.revision))throw new Error('INVALID_INPUT');
@@ -84,9 +86,9 @@ export async function openLocalStore(path){
    else if(action==='linkReviewBudget')await tx.query('insert into review_budgets(company_id,review_id,resource_id,note) values($1,$2,$3,$4)',[member.company_id,input.review_id,input.resource_id,input.note?.trim()]);
    else if(action==='reviseSiteRequirement'){
     if(!Number.isInteger(input.revision)||input.revision<1)throw new Error('INVALID_INPUT');
-    await tx.query('insert into site_requirement_revisions(company_id,site_id,requirement_id,revision,prime_id,kind,title,source_kind,confirmation,detail,version_label,location_note,reason) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)',[member.company_id,input.site_id,input.requirement_id,input.revision,input.prime_id||null,input.kind,input.title?.trim(),input.source_kind,input.confirmation,input.detail?.trim(),input.version_label?.trim()??'',input.location_note?.trim()??'',input.reason?.trim()]);
+    await tx.query('insert into site_requirement_revisions(company_id,site_id,requirement_id,revision,prime_id,kind,title,source_kind,confirmation,detail,version_label,location_note,reason,applicable_from,applicable_until) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15)',[member.company_id,input.site_id,input.requirement_id,input.revision,input.prime_id||null,input.kind,input.title?.trim(),input.source_kind,input.confirmation,input.detail?.trim(),input.version_label?.trim()??'',input.location_note?.trim()??'',input.reason?.trim(),input.applicable_from||null,input.applicable_until||null]);
    }
-   else if(action==='addSiteRequirement')await tx.query('insert into site_requirements(company_id,site_id,prime_id,kind,title,source_kind,confirmation,detail,version_label,location_note) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)',[member.company_id,input.site_id,input.prime_id||null,input.kind,input.title?.trim(),input.source_kind,input.confirmation,input.detail?.trim(),input.version_label?.trim()??'',input.location_note?.trim()??'']);
+   else if(action==='addSiteRequirement')await tx.query('insert into site_requirements(company_id,site_id,prime_id,kind,title,source_kind,confirmation,detail,version_label,location_note,applicable_from,applicable_until) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)',[member.company_id,input.site_id,input.prime_id||null,input.kind,input.title?.trim(),input.source_kind,input.confirmation,input.detail?.trim(),input.version_label?.trim()??'',input.location_note?.trim()??'',input.applicable_from||null,input.applicable_until||null]);
    else if(action==='addSitePrime')await tx.query('insert into site_primes(company_id,site_id,prime_name,relationship,starts_on,note) values($1,$2,$3,$4,$5,$6)',[member.company_id,input.site_id,input.prime_name?.trim(),input.relationship?.trim(),input.starts_on,input.note?.trim()??'']);
    else if(action==='endSitePrime')await tx.query('insert into site_prime_ends(company_id,site_id,prime_id,ends_on,reason) values($1,$2,$3,$4,$5)',[member.company_id,input.site_id,input.prime_id,input.ends_on,input.reason?.trim()]);
    else if(action==='addWorkRisk')await tx.query('insert into work_risks(company_id,site_id,action_id,work_type,location,work_date,hazard,measure) values($1,$2,$3,$4,$5,$6,$7,$8)',[member.company_id,input.site_id,input.action_id||null,input.work_type,input.location?.trim(),input.work_date,input.hazard?.trim(),input.measure?.trim()]);
