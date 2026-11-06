@@ -18,5 +18,5 @@ test('site requirements isolate sites and do not accept another site contractor'
 test('list escapes titles and explicitly distinguishes a location note from a file',()=>{
  const esc=x=>String(x??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;');
  const state={member:{role:'viewer'},sites:[{id:'s',name:'현장',active:true}],sitePrimes:[],siteRequirements:[{site_id:'s',title:'<script>',kind:'양식',source_kind:'확인 전',confirmation:'확인 전',detail:'메모',version_label:'',location_note:''}]};
- const html=renderSiteRequirements(state,esc);assert.match(html,/&lt;script&gt;/);assert.match(html,/파일은 PC 개발 DB에 보관/);assert.doesNotMatch(html,/<form/);
+ const html=renderSiteRequirements(state,esc);assert.match(html,/&lt;script&gt;/);assert.match(html,/파일은 PC 개발 DB에 보관/);assert.doesNotMatch(html,/id="site-requirement-form"|data-revise-requirement=|data-requirement-file=/);assert.match(html,/id="requirement-filter"/);
 });
