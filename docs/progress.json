@@ -1,8 +1,8 @@
 {
   "updated": "2026-11-06",
-  "version": "0.56.0",
+  "version": "0.57.0",
   "baseline": "골조협력사 안전관리 통합프로그램 기획서 v1.0, §12 F01~F16 / §20 / §21",
-  "assessment": "골조 위험 기록을 원본과 정정 사유를 보존하며 수정하고, TBM에는 기록 당시의 위험 내용을 보존합니다. 실제 현장 실증은 남았습니다.",
+  "assessment": "위험 확인 메모에 저장 당시의 위험 기록 버전을 보존하고, 기존 메모의 버전은 확인 불가로 표시합니다. 실제 현장 실증은 남았습니다.",
   "constraint": "사용자 요청에 따라 추가 서비스 비용 0원. PC 로컬 PostgreSQL과 가상 역할로 개발하며 실제 로그인·15현장 공동 운영은 미지원입니다. TBM 참석 대상·본인확인·서명·교육별 이수와 누락은 저장 필수항목이 아닙니다.",
   "items": [
     {
@@ -64,9 +64,9 @@
       "priority": "P1",
       "name": "골조 위험성평가·조치",
       "status": "partial",
-      "done": "골조 작업 위험·안전조치 및 같은 현장 조치 연결, 의견 전달·현장 확인·조치 후 재확인 메모; 같은 현장 위험 기록과 TBM의 양방향 이동 및 연결 기록 표시; 같은 현장 개선조치와 위험 기록의 양방향 조회 및 조치 조회 조건 안내; 위험 기록 원본·정정 이력과 사유 보존 및 TBM 연결 당시 위험 버전 기록",
+      "done": "골조 작업 위험·안전조치 및 같은 현장 조치 연결, 의견 전달·현장 확인·조치 후 재확인 메모; 같은 현장 위험 기록과 TBM의 양방향 이동 및 연결 기록 표시; 같은 현장 개선조치와 위험 기록의 양방향 조회 및 조치 조회 조건 안내; 위험 기록 원본·정정 이력과 사유 보존 및 TBM 연결 당시 위험 버전 기록; 신규 의견·현장 확인 기록의 당시 위험 버전 보존 및 입력 중 변경 충돌 차단, 기존 기록 버전 미확인 표시",
       "remaining": "위험도 평가, 실제 근로자 본인확인·참여·서명, 전후 사진, 정식 승인, 기존 위험 기록의 연결 조치 변경, 현장 실증",
-      "evidence": "test/work-risks.test.mjs, test/risk-observations.test.mjs; 가상 의견·재확인 화면 검증; test/risk-tbm-links.test.mjs (현장 범위·선택 연결 모의 시험); test/risk-action-links.test.mjs (현장 범위·화면 출력 모의 시험); db/local-work-risk-revisions.sql; test/work-risk-revisions.test.mjs (권한·정정·TBM 당시 기록·백업 복원 시험)"
+      "evidence": "test/work-risks.test.mjs, test/risk-observations.test.mjs; 가상 의견·재확인 화면 검증; test/risk-tbm-links.test.mjs (현장 범위·선택 연결 모의 시험); test/risk-action-links.test.mjs (현장 범위·화면 출력 모의 시험); db/local-work-risk-revisions.sql; test/work-risk-revisions.test.mjs (권한·정정·TBM 당시 기록·백업 복원 시험); db/local-risk-observation-version.sql; test/risk-observation-version.test.mjs (버전·충돌·기존 기록·백업 시험)"
     },
     {
       "id": "F08",
@@ -205,7 +205,8 @@
     "현장 요구사항·양식 조회 목록 CSV 내보내기 및 수식 입력 방어 시험",
     "골조 위험 기록과 선택 연결된 같은 현장 TBM의 양방향 조회",
     "골조 위험 기록과 선택 연결된 개선조치 양방향 조회",
-    "골조 위험 기록의 원본 보존 정정과 TBM 기록 당시 위험 버전 보존"
+    "골조 위험 기록의 원본 보존 정정과 TBM 기록 당시 위험 버전 보존",
+    "위험 현장 확인 메모의 연결 당시 위험 버전 기록 및 기존 버전 미확인 구분"
   ],
   "next": [
     "F09: 실제 모바일 기기 촬영·원본과 오프라인 전송 가능성 실증",
