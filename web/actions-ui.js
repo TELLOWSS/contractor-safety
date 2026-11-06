@@ -1,6 +1,7 @@
+import {currentWorkRisks} from './work-risks-ui.js';
 import {actionLabels as labels,filteredActions,emptyFilters,seoulDate,actionDate as date,correctionText} from './action-view.js';
 export function renderActionRisks(state,action,esc){
- const risks=(state.workRisks??[]).filter(r=>r.action_id===action.id&&r.site_id===action.site_id);
+ const risks=currentWorkRisks(state).filter(r=>r.action_id===action.id&&r.site_id===action.site_id);
  return `<details><summary>연결된 작업 위험 ${risks.length}건</summary><p class="small">연결 기록을 확인하기 위한 목록이며, 개선 효과 확인이나 위험성평가 완료 판정이 아닙니다.</p>${risks.map(r=>`<p><a href="#risk-${esc(r.id)}">${esc(r.work_type)} · ${esc(r.location)}</a> · ${esc(String(r.work_date).slice(0,10))}<br>위험요인: ${esc(r.hazard)}</p>`).join('')||'<p>연결된 작업 위험 기록이 없습니다. 연결은 선택 사항입니다.</p>'}</details>`;
 }
 export function renderActions(state,esc,filters=emptyFilters()){
