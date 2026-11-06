@@ -9,3 +9,5 @@ User requirement: follow the original framing-contractor safety plan and show a 
 - Explain each milestone to the user with completed checks, remaining checks and the next priority.
 - Current next priority: F02 obligation applicability records, followed by F03 organization/resources. Search/printing were implemented early; do not keep prioritizing cosmetic additions over these missing core functions.
 - Preserve existing operational apps and databases. Back up the local DB before schema upgrades. Never commit .local-data or real personal records.
+
+- For F08, attendance rosters, identity verification, signatures, education completion and omissions must not be required for TBM saving. Site management scope is optional and unknown when not provided; assess applicable legal obligations separately for each situation.

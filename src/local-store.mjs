@@ -39,6 +39,7 @@ export async function openLocalStore(path){
  if(!(await db.query("select version from private.local_schema_versions where version='work-risks-v1'")).rows.length) await db.exec(await readFile(new URL('../db/local-work-risks.sql',import.meta.url),'utf8'));
  if(!(await db.query("select version from private.local_schema_versions where version='risk-observations-v1'")).rows.length) await db.exec(await readFile(new URL('../db/local-risk-observations.sql',import.meta.url),'utf8'));
  if(!(await db.query("select version from private.local_schema_versions where version='tbm-v1'")).rows.length) await db.exec(await readFile(new URL('../db/local-tbm.sql',import.meta.url),'utf8'));
+ if(!(await db.query("select version from private.local_schema_versions where version='tbm-scope-v1'")).rows.length) await db.exec(await readFile(new URL('../db/local-tbm-scope.sql',import.meta.url),'utf8'));
  let queue=Promise.resolve();
  async function execute(actor,action,input={}){
   if(!Object.hasOwn(actors,actor))throw new Error('INVALID_ACTOR');
@@ -82,7 +83,7 @@ export async function openLocalStore(path){
    else if(action==='addRiskObservation')await tx.query('insert into risk_observations(company_id,site_id,risk_id,kind,observed_on,participant_alias,detail,evidence_note) values($1,$2,$3,$4,$5,$6,$7,$8)',[member.company_id,input.site_id,input.risk_id,input.kind,input.observed_on,input.participant_alias?.trim(),input.detail?.trim(),input.evidence_note?.trim()]);
    else if(action==='addTbm'){
     if(!Number.isInteger(Number(input.duration_minutes))||Number(input.duration_minutes)<1||Number(input.duration_minutes)>480)throw new Error('INVALID_INPUT');
-    await tx.query('insert into tbm_sessions(company_id,site_id,risk_id,started_at,duration_minutes,location,work_description,hazard,instruction,facilitator_alias) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)',[member.company_id,input.site_id,input.risk_id||null,input.started_at,Number(input.duration_minutes),input.location?.trim(),input.work_description?.trim(),input.hazard?.trim(),input.instruction?.trim(),input.facilitator_alias?.trim()]);
+    await tx.query('insert into tbm_sessions(company_id,site_id,risk_id,started_at,duration_minutes,location,work_description,hazard,instruction,facilitator_alias,attendance_scope,education_label,scope_note) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)',[member.company_id,input.site_id,input.risk_id||null,input.started_at,Number(input.duration_minutes),input.location?.trim(),input.work_description?.trim(),input.hazard?.trim(),input.instruction?.trim(),input.facilitator_alias?.trim(),input.attendance_scope||null,input.education_label?.trim()||null,input.scope_note?.trim()||null]);
    }
    else if(action==='editAction'){
     if(!Number.isInteger(input.revision))throw new Error('INVALID_INPUT');
