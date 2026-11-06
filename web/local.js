@@ -1,3 +1,4 @@
+import {optimizePhoto,optimizedPhotoName,PHOTO_MAX_INPUT_BYTES} from './photo-optimizer.js';
 import {renderWorkPermits} from './work-permits-ui.js';
 import {renderPpe} from './ppe-ui.js';
 import {renderWorkerOpinions} from './worker-opinions-ui.js';
@@ -48,9 +49,9 @@ root.addEventListener('change',e=>{if(e.target.id!=='incident-site'||!state)retu
 root.addEventListener('change',e=>{if(e.target.id!=='work-permit-site'||!state)return;const select=root.querySelector('#work-permit-prime');select.replaceChildren(new Option('선택 안 함·확인 전',''));for(const p of currentSitePrimes(state).filter(p=>p.site_id===e.target.value))select.add(new Option(p.prime_name+' · '+String(p.starts_on).slice(0,10),p.id));});
 
 async function uploadActionPhoto(form){
- if(busy)return;const file=form.querySelector('input[type=file]').files[0];if(!file||file.size<1||file.size>2097152){status.textContent='사진 파일은 1바이트 이상 2MB 이하여야 합니다.';return;}
- busy=true;actor.disabled=true;status.textContent='사진 저장 중…';
- try{const encoded=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result).split(',')[1]);reader.onerror=()=>reject(new Error('READ_FAILED'));reader.readAsDataURL(file);});await fileApi('addActionPhoto',{site_id:form.dataset.siteId,action_id:form.dataset.actionPhoto,action_revision:Number(form.dataset.revision),phase:new FormData(form).get('phase'),filename:file.name,content_base64:encoded});busy=false;await request();status.textContent='사진을 PC DB에 저장했습니다.';}catch{status.textContent='사진을 저장하지 못했습니다. 형식·크기와 현장 권한, 조치 상태를 확인하세요.';}finally{busy=false;actor.disabled=false;}
+ if(busy)return;const file=form.querySelector('input[type=file]').files[0];if(!file||file.size<1||file.size>PHOTO_MAX_INPUT_BYTES){status.textContent='원본 사진은 1바이트 이상 30MB 이하여야 합니다.';return;}
+ busy=true;actor.disabled=true;status.textContent='사진을 최적화 중…';
+ try{const optimized=await optimizePhoto(file);status.textContent='최적화한 사진을 저장 중…';const encoded=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result).split(',')[1]);reader.onerror=()=>reject(new Error('READ_FAILED'));reader.readAsDataURL(optimized.blob);});await fileApi('addActionPhoto',{site_id:form.dataset.siteId,action_id:form.dataset.actionPhoto,action_revision:Number(form.dataset.revision),phase:new FormData(form).get('phase'),filename:optimizedPhotoName(file.name),content_base64:encoded});busy=false;await request();status.textContent=`사진을 JPEG ${optimized.width}×${optimized.height}, ${Math.ceil(optimized.blob.size/1024)}KB로 최적화해 저장했습니다. 원본과 메타데이터는 저장되지 않았습니다.`;}catch(e){const messages={PHOTO_INPUT_SIZE:'원본 사진은 30MB 이하여야 합니다.',PHOTO_DIMENSIONS:'사진 크기는 6,000만 화소 이하여야 합니다.',PHOTO_TOO_LARGE:'사진을 2MB 이하로 줄이지 못해 저장하지 않았습니다.',PHOTO_DECODE_FAILED:'사진을 열 수 없어 저장하지 않았습니다. 기기에서 JPEG·PNG·WebP로 변환 후 다시 시도하세요.',PHOTO_ENCODE_FAILED:'사진 변환에 실패해 저장하지 않았습니다.'};status.textContent=messages[e.message]??'사진을 저장하지 못했습니다. 현장 권한과 조치 상태를 확인하세요.';}finally{busy=false;actor.disabled=false;}
 }
 async function downloadActionPhoto(id){
  if(busy)return;busy=true;actor.disabled=true;status.textContent='사진을 불러오는 중…';
