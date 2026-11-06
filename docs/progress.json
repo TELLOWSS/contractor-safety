@@ -1,8 +1,8 @@
 {
   "updated": "2026-11-06",
-  "version": "0.52.0",
+  "version": "0.53.0",
   "baseline": "골조협력사 안전관리 통합프로그램 기획서 v1.0, §12 F01~F16 / §20 / §21",
-  "assessment": "현장별 원도급사 요구사항·양식을 현장, 출처, 구분, 확인 상태 및 명칭으로 조회하고 같은 조건으로 인쇄할 수 있습니다. 실제 현장 실증은 남았습니다.",
+  "assessment": "현장별 요구사항·양식을 적용된 조회 조건으로 인쇄하거나 CSV로 내려받을 수 있습니다. 실제 엑셀과 현장 자료 실증은 남았습니다.",
   "constraint": "사용자 요청에 따라 추가 서비스 비용 0원. PC 로컬 PostgreSQL과 가상 역할로 개발하며 실제 로그인·15현장 공동 운영은 미지원입니다. TBM 참석 대상·본인확인·서명·교육별 이수와 누락은 저장 필수항목이 아닙니다.",
   "items": [
     {
@@ -145,9 +145,9 @@
       "priority": "P2",
       "name": "원청 양식·외부 연동",
       "status": "partial",
-      "done": "현장별 원도급사 명칭·관계·시작일 및 별도 종료일 기록, 접근 범위 로컬 시험; 현장별 요구사항·양식 목록과 출처·확인 상태·선택적 원도급사 연결; 요구사항·양식 메타데이터의 원본 보존 정정과 변경 사유·이력; 선택적 적용 시작·종료일 및 변경 이력별 보존; 연결 관계의 정정된 원도급사명 표시; 원도급사 관계 종료일 정정; 양식 파일을 해당 기록 버전에 연결해 PC DB에 저장·다운로드; 현재 기록과 이전 기록의 연결 파일 구분 및 확인 안내; 이전 파일의 현재 기록 재연결과 사유·이력 보존; 진행 현장 기준 최신 기록의 확인 상태·종료일 경과 및 30일 이내·파일 미연결 목록; 현장·출처·최신 기록 및 원도급사명 조합 검색과 조회 초기화; 적용된 조회 조건과 현재 기록·파일 연결 수를 표시하는 인쇄용 양식 목록; 양식·요구사항 구분 및 확인 상태 조합 조회·인쇄 조건 표시",
+      "done": "현장별 원도급사 명칭·관계·시작일 및 별도 종료일 기록, 접근 범위 로컬 시험; 현장별 요구사항·양식 목록과 출처·확인 상태·선택적 원도급사 연결; 요구사항·양식 메타데이터의 원본 보존 정정과 변경 사유·이력; 선택적 적용 시작·종료일 및 변경 이력별 보존; 연결 관계의 정정된 원도급사명 표시; 원도급사 관계 종료일 정정; 양식 파일을 해당 기록 버전에 연결해 PC DB에 저장·다운로드; 현재 기록과 이전 기록의 연결 파일 구분 및 확인 안내; 이전 파일의 현재 기록 재연결과 사유·이력 보존; 진행 현장 기준 최신 기록의 확인 상태·종료일 경과 및 30일 이내·파일 미연결 목록; 현장·출처·최신 기록 및 원도급사명 조합 검색과 조회 초기화; 적용된 조회 조건과 현재 기록·파일 연결 수를 표시하는 인쇄용 양식 목록; 양식·요구사항 구분 및 확인 상태 조합 조회·인쇄 조건 표시; 적용된 조회 조건의 최신 양식 목록 CSV 내려받기(파일 원본 제외)",
       "remaining": "원도급사 공통 식별, 파일 삭제·공유·대용량·실제 인증, 승인된 제출본·서식 매핑 및 현장 실증",
-      "evidence": "db/local-site-primes.sql, test/site-primes.test.mjs; 원도급사 양식·자동작성 미구현; test/site-requirements.test.mjs; test/site-requirement-revisions.test.mjs; test/site-requirement-period.test.mjs; test/site-prime-revisions.test.mjs; test/site-prime-end-revisions.test.mjs; test/site-requirement-files.test.mjs; test/site-requirement-file-view.test.mjs; test/site-requirement-file-links.test.mjs; test/site-requirement-attention.test.mjs (날짜 경계·정정·파일 재연결 모의 시험); test/site-requirement-filter.test.mjs (다중 현장·정정 검색 모의 시험); test/site-requirement-report.test.mjs (조회 범위·정정·파일 연결·출력 안전성 모의 시험); test/site-requirement-filter.test.mjs, test/site-requirement-report.test.mjs (구분·확인 상태 시험)"
+      "evidence": "db/local-site-primes.sql, test/site-primes.test.mjs; 원도급사 양식·자동작성 미구현; test/site-requirements.test.mjs; test/site-requirement-revisions.test.mjs; test/site-requirement-period.test.mjs; test/site-prime-revisions.test.mjs; test/site-prime-end-revisions.test.mjs; test/site-requirement-files.test.mjs; test/site-requirement-file-view.test.mjs; test/site-requirement-file-links.test.mjs; test/site-requirement-attention.test.mjs (날짜 경계·정정·파일 재연결 모의 시험); test/site-requirement-filter.test.mjs (다중 현장·정정 검색 모의 시험); test/site-requirement-report.test.mjs (조회 범위·정정·파일 연결·출력 안전성 모의 시험); test/site-requirement-filter.test.mjs, test/site-requirement-report.test.mjs (구분·확인 상태 시험); test/site-requirement-csv.test.mjs (조회 범위·정정·특수문자·수식 방어 시험)"
     }
   ],
   "cleared": [
@@ -201,7 +201,8 @@
     "진행 현장의 원도급사 요구사항·양식 확인 상태, 기록된 종료일과 파일 연결 여부 모아보기",
     "원도급사 요구사항·양식의 현장·출처·최신 명칭 조합 조회",
     "현장 요구사항·양식의 적용된 조회 범위 인쇄용 목록",
-    "현장 양식·요구사항 구분과 확인 상태별 조회·인쇄 조건 표시"
+    "현장 양식·요구사항 구분과 확인 상태별 조회·인쇄 조건 표시",
+    "현장 요구사항·양식 조회 목록 CSV 내보내기 및 수식 입력 방어 시험"
   ],
   "next": [
     "F09: 실제 모바일 기기 촬영·원본과 오프라인 전송 가능성 실증",
