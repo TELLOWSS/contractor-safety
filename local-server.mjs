@@ -7,7 +7,7 @@ await import('./scripts/progress.mjs');
 const port=4174,origin=`http://127.0.0.1:${port}`;
 await mkdir(new URL('./.local-data/',import.meta.url),{recursive:true});
 const store=await openLocalStore(fileURLToPath(new URL('./.local-data/postgres',import.meta.url)));
-const files={'/':'local.html','/photo-preview.js':'photo-preview.js','/photo-optimizer.js':'photo-optimizer.js','/work-permits-ui.js':'work-permits-ui.js','/ppe-ui.js':'ppe-ui.js','/worker-opinions-ui.js':'worker-opinions-ui.js','/incidents-ui.js':'incidents-ui.js','/site-requirements-ui.js':'site-requirements-ui.js','/site-primes-ui.js':'site-primes-ui.js','/progress.html':'progress.html','/tbm-ui.js':'tbm-ui.js','/work-risks-ui.js':'work-risks-ui.js','/review-coverage.js':'review-coverage.js','/reviews-ui.js':'reviews-ui.js','/resources-ui.js':'resources-ui.js','/obligations-ui.js':'obligations-ui.js','/local.js':'local.js','/actions-ui.js':'actions-ui.js','/action-view.js':'action-view.js','/style.css':'style.css'};
+const files={'/':'local.html','/photo-queue.js':'photo-queue.js','/photo-preview.js':'photo-preview.js','/photo-optimizer.js':'photo-optimizer.js','/work-permits-ui.js':'work-permits-ui.js','/ppe-ui.js':'ppe-ui.js','/worker-opinions-ui.js':'worker-opinions-ui.js','/incidents-ui.js':'incidents-ui.js','/site-requirements-ui.js':'site-requirements-ui.js','/site-primes-ui.js':'site-primes-ui.js','/progress.html':'progress.html','/tbm-ui.js':'tbm-ui.js','/work-risks-ui.js':'work-risks-ui.js','/review-coverage.js':'review-coverage.js','/reviews-ui.js':'reviews-ui.js','/resources-ui.js':'resources-ui.js','/obligations-ui.js':'obligations-ui.js','/local.js':'local.js','/actions-ui.js':'actions-ui.js','/action-view.js':'action-view.js','/style.css':'style.css'};
 const server=http.createServer(async(req,res)=>{
  res.setHeader('X-Content-Type-Options','nosniff');res.setHeader('Cache-Control','no-store');
  res.setHeader('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' blob:; frame-ancestors 'none'; base-uri 'none'; object-src 'none'");
@@ -26,7 +26,7 @@ const server=http.createServer(async(req,res)=>{
   try{let raw='';for await(const chunk of req){raw+=chunk;if(Buffer.byteLength(raw)>2850000){json(413,{error:'INPUT_TOO_LARGE'});return;}}
    const body=JSON.parse(raw);if(!['addRequirementFile','getRequirementFile','addActionPhoto','getActionPhoto'].includes(body.action)){json(400,{error:'INVALID_ACTION'});return;}
    const result=await store.request(body.actor,body.action,body.input);json(200,['getRequirementFile','getActionPhoto'].includes(body.action)?result:{saved:true});
-  }catch(e){const code=['INVALID_FILE','REVISION_CONFLICT'].find(code=>e.message.includes(code))??'ACCESS_OR_INPUT_DENIED';json(400,{error:code});}return;
+  }catch(e){const code=['INVALID_FILE','REVISION_CONFLICT','UPLOAD_ID_CONFLICT'].find(code=>e.message.includes(code))??'ACCESS_OR_INPUT_DENIED';json(400,{error:code});}return;
  }
  if(req.url==='/api'){
   if(req.method!=='POST'||req.headers.origin!==origin||!req.headers['content-type']?.startsWith('application/json')){json(403,{error:'ORIGIN_DENIED'});return;}
