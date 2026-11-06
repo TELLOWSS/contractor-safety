@@ -1,0 +1,6 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {queuedPhotoBytes,renderPhotoQueue} from '../web/photo-queue.js';
+const item={id:'photo-1',actor:'manager',company_id:'company',site_id:'site',action_id:'action',action_revision:1,filename:'대기.jpg',phase:'조치 후',byte_size:4,content_base64:Buffer.from([255,216,255,217]).toString('base64')};
+test('recover optimized JPEG bytes while rejecting corrupt or mismatched data',()=>{assert.deepEqual([...queuedPhotoBytes(item)],[255,216,255,217]);assert.throws(()=>queuedPhotoBytes({...item,byte_size:5}),/INVALID_QUEUED_PHOTO/);assert.throws(()=>queuedPhotoBytes({...item,content_base64:'bm90anBlZw==',byte_size:7}),/INVALID_QUEUED_PHOTO/);assert.throws(()=>queuedPhotoBytes({...item,content_base64:'!!!!'}),/INVALID_QUEUED_PHOTO/);});
+test('show changed revision and recovery only for accessible queue entries',()=>{const state={actor:'manager',member:{company_id:'company'},sites:[{id:'site',name:'현장'}],actions:[{id:'action',title:'조치',revision:2}]};const html=renderPhotoQueue([item,{...item,id:'hidden',actor:'other'}],state,String);assert.match(html,/현재 조치 버전은 2/);assert.match(html,/data-download-queued-photo="photo-1"/);assert.doesNotMatch(html,/data-download-queued-photo="hidden"/);assert.match(html,/대기 항목은 유지/);});

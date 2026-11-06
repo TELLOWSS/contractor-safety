@@ -1,8 +1,8 @@
 {
   "updated": "2026-11-06",
-  "version": "0.47.0",
+  "version": "0.48.0",
   "baseline": "골조협력사 안전관리 통합프로그램 기획서 v1.0, §12 F01~F16 / §20 / §21",
-  "assessment": "개선조치 사진을 최대 1MB JPEG로 최적화하고, 전송 실패 시 PC 브라우저 임시 대기와 수동 재전송을 지원합니다. 실제 모바일·통신 장애 실증은 남았습니다.",
+  "assessment": "개선조치 사진을 최대 1MB JPEG로 최적화하고, 전송 실패 시 PC 브라우저 대기·수동 재전송과 최적화 사진 복구를 지원합니다. 실제 모바일·통신 장애 실증은 남았습니다.",
   "constraint": "사용자 요청에 따라 추가 서비스 비용 0원. PC 로컬 PostgreSQL과 가상 역할로 개발하며 실제 로그인·15현장 공동 운영은 미지원입니다. TBM 참석 대상·본인확인·서명·교육별 이수와 누락은 저장 필수항목이 아닙니다.",
   "items": [
     {
@@ -82,9 +82,9 @@
       "priority": "P1",
       "name": "카메라·오프라인 업로드",
       "status": "partial",
-      "done": "개선조치에 JPEG·PNG·WebP 사진 선택·PC DB 보관, 조치 버전·해시 기록과 백업 시험; 업로드 전 JPEG 자동 크기·용량 최적화(긴 변 최대 1,920px·1MB), 저장 전 미리보기·크기 비교; PC 브라우저 임시 대기·수동 재전송과 전송 식별자 중복 저장 방지",
+      "done": "개선조치에 JPEG·PNG·WebP 사진 선택·PC DB 보관, 조치 버전·해시 기록과 백업 시험; 업로드 전 JPEG 자동 크기·용량 최적화(긴 변 최대 1,920px·1MB), 저장 전 미리보기·크기 비교; PC 브라우저 임시 대기·수동 재전송과 전송 식별자 중복 저장 방지; 대기 사진의 JPEG 내려받기 및 조치 버전 변경 안내",
       "remaining": "실제 휴대전화 촬영·브라우저별 이미지 변환과 품질 실증, 통신 장애 현장 실증, 원본 별도 보존, 자동 전송·충돌 해소·저장부족 대응, 파일 삭제·공유",
-      "evidence": "db/local-site-action-photos.sql; test/site-action-photos.test.mjs; 휴대전화 실기기 미검증; test/photo-optimizer.test.mjs (변환 로직 모의 시험, 실기기 미검증); test/photo-preview.test.mjs (미리보기 상태 모의 시험); PC 브라우저 가상 이미지 미리보기 3,475KB→860KB 검증; test/photo-queue.test.mjs; test/action-photo-idempotency.test.mjs (모의 및 로컬 DB 시험)"
+      "evidence": "db/local-site-action-photos.sql; test/site-action-photos.test.mjs; 휴대전화 실기기 미검증; test/photo-optimizer.test.mjs (변환 로직 모의 시험, 실기기 미검증); test/photo-preview.test.mjs (미리보기 상태 모의 시험); PC 브라우저 가상 이미지 미리보기 3,475KB→860KB 검증; test/photo-queue.test.mjs; test/action-photo-idempotency.test.mjs (모의 및 로컬 DB 시험); test/photo-queue-recovery.test.mjs (모의 시험)"
     },
     {
       "id": "F10",
